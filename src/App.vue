@@ -1,234 +1,169 @@
 <template>
-  <q-layout view="lHh Lpr lFf" class="fullscreen">
-    <q-header bordered class="bg-grey-3 text-primary">
-      <q-toolbar>
-        <q-toolbar-title class="text-center">
-     CONTADOR DEL REFRIGERADOR
-          <q-avatar>
-            <img src="https://cdn-icons-png.flaticon.com/512/642/642000.png">
-            <h1 style="color:white">Contador de Refrigerador</h1>
-          </q-avatar>
-        </q-toolbar-title>
-      </q-toolbar>
-    </q-header>
 
-    <q-footer bordered class="bg-grey-3 text-primary">
-      <q-tabs no-caps active-color="primary" indicator-color="transparent" class="text-grey-8" v-model="tab">
-        <q-tab name="nevera" label="Nevera" icon="kitchen" />
-        <q-tab name="estadisticas" label="Estadísticas" icon="bar_chart" />
-      </q-tabs>
-    </q-footer>
+<div class="padre">
 
-    <q-page-container>
-      <q-page class="q-pa-md">
-        <!-- Tab Nevera -->
-        <div v-if="tab === 'nevera'">
-          <q-card class="q-mb-md">
-            <q-card-section class="text-center">
-              <img :src="isOpen ? '/abierto.png' : '/cerrado.png'" :alt="isOpen ? 'Nevera Abierta' : 'Nevera Cerrada'" style="max-width: 300px; height: 300px;">
-              <div class="text-h6 q-mt-md">Total de Aperturas: {{ totalOpens }}</div>
-              <div class="q-mt-md">
-                <q-btn color="primary" size="lg" label="Abrir Refrigerador" @click="incrementCounter" class="q-mr-md" />
-                <q-btn color="negative" size="lg" label="Reiniciar Contador" @click="resetCounter" />
-              </div>
-              <div v-if="judgmentMessage" class="text-body2 q-mt-sm text-grey-7">{{ judgmentMessage }}</div>
-            </q-card-section>
-          </q-card>
+    <div class="q-pa-md">
+    <q-scroll-area style="height: calc(100vh - 160px); max-width: 2000px;">
+      <div class="q-pa-md row justify-center">
+        <div style="width: 100%; max-width: 400px">
+          <div v-for="(message, index) in messages" :key="index">
+            <q-chat-message
+              :name="message.name"
+              :avatar="message.avatar"
+              :text="[message.text]"
+              :stamp="message.stamp"
+              :sent="message.sent"
+              :text-color="message.textColor"
+              :bg-color="green"
+            />
+          </div>
+          <div class="q-mt-md">
+            <q-input
+              v-model="userInput"
+              label="Preguntale a Cháchara"
+              outlined
+              @keyup.enter="sendMessage"
+            />
+            <q-btn
+              label="Enviar"
+              color="primary"
+              @click="sendMessage"
+              class="q-mt-sm"
+            />
+          </div>
         </div>
+      </div>
+    </q-scroll-area>
+  </div>
 
-        <!-- Tab Estadísticas -->
-        <div v-if="tab === 'estadisticas'">
-          <q-card class="q-mb-md">
-            <q-card-section>
-              <div class="text-h6">Estadísticas Detalladas</div>
-              <q-separator class="q-my-md" />
-              <div class="row q-gutter-md">
-                <div class="col-6">
-                  <q-card flat bordered class="text-center">
-                    <q-card-section>
-                      <div class="text-h6 text-primary">{{ todayOpens }}</div>
-                      <div class="text-caption">Total Hoy</div>
-                    </q-card-section>
-                  </q-card>
-                </div>
-                <div class="col-6">
-                  <q-card flat bordered class="text-center">
-                    <q-card-section>
-                      <div class="text-h6 text-primary">{{ weeklyAverage }}</div>
-                      <div class="text-caption">Promedio Semanal</div>
-                    </q-card-section>
-                  </q-card>
-                </div>
-              </div>
-            </q-card-section>
-          </q-card>
+</div>
+<q-dialog v-model="showIntroDialog" persistent maximized>
+  <q-card class="bg-green">  <!-- Fondo verde -->
+    <div class="relative">  <!-- Contenedor relativo -->
+      <q-img src="/chachara.png" style="width: 1920px; height: 945px;" />
+      
+      <!-- Texto debajo del botón (posicionado absolutamente cerca del fondo) -->
+      <q-card-section class="absolute text-center" style="bottom: 80px; left: 50%; transform: translateX(-50%); z-index: 20;" >
+        <span style="color:darkgreen; font-size:25px; font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">¡Bienvenido! listo para hablar con tu consejero de confianza Cháchara 😁👍, te ayudara en lo que sea tu solo pregunta 
+          quieres empezar 😎?.</span>
+      </q-card-section>
+      <!-- Botón en la parte inferior de la imagen -->
+      <q-card-actions class="absolute-bottom text-center">
+        <q-btn
+  flat label="Empecemos!"
+  color="green-10"
+  background-color="white"
+  v-close-popup
+  size="lg"
+  class="q-pa-md text-weight-bold text-uppercase rounded-borders shadow-4"
+  style="font-size: 30px; padding: 12px 24px;"
+  font-family="SuperChiby"
+/>
 
-          <q-card class="q-mb-md">
-            <q-card-section>
-              <div class="text-h6">Aperturas por Hora (Hoy)</div>
-              <apexchart type="bar" :options="hourlyChartOptions" :series="hourlyChartSeries" height="300" />
-            </q-card-section>
-          </q-card>
+      </q-card-actions>
+    </div>
+  </q-card>
+</q-dialog>
 
-          <q-card>
-            <q-card-section>
-              <div class="text-h6">Patrones Semanales</div>
-              <apexchart type="bar" :options="weeklyChartOptions" :series="weeklyChartSeries" height="300" />
-            </q-card-section>
-          </q-card>
-        </div>
-      </q-page>
-    </q-page-container>
-  </q-layout>
 </template>
 
-<script setup>
-import { ref, computed, onMounted } from 'vue'
-import ApexChart from 'vue3-apexcharts'
+<script>
+import { ref } from 'vue'
 
-const tab = ref('nevera') // Tab inicial
+export default {
+  name: 'App',
+  setup() {
+    const userInput = ref('')
+    const messages = ref([
+      {
+        name: 'Cháchara',
+        avatar: 'https://img.freepik.com/vector-premium/monstruo-dibujos-animados-expresion-facial-divertida-emocionada-agitando-manos-ilustracion-vectorial-aislada-diseno-blanco-halloween_6996-6410.jpg',
+        text: 'ola! soy Cháchara, adelante, pregunta lo que sea! te dare los mejores consejos 😀👌😌',
+        stamp: new Date().toLocaleTimeString(),
+        sent: false,
+        textColor: 'white',
+        bgColor: 'primary'
+      }
+    ])
+    const showIntroDialog = ref(true)  // Add this for the intro dialog
 
-// Estado reactivo
-const totalOpens = ref(0)
-const openTimes = ref([])
-const isOpen = ref(false)
+    const sendMessage = async () => {
+      if (userInput.value.trim() === '') return
 
-// Cargar datos de localStorage al montar
-onMounted(() => {
-  const stored = localStorage.getItem('refrigeratorOpens')
-  if (stored) {
-    const data = JSON.parse(stored)
-    totalOpens.value = data.total
-    openTimes.value = data.times.map(t => new Date(t))
-  }
-})
+      // Agregar mensaje del usuario
+      messages.value.push({
+        name: 'Tú',
+        avatar: 'https://static.vecteezy.com/system/resources/previews/013/042/571/non_2x/default-avatar-profile-icon-social-media-user-photo-in-flat-style-vector.jpg',
+        text: userInput.value,
+        stamp: new Date().toLocaleTimeString(),
+        sent: true,
+        bgColor: 'amber-7'
+      })
 
-// Función para incrementar contador
-const incrementCounter = () => {
-  isOpen.value = true
-  setTimeout(() => {
-    isOpen.value = false
-  }, 500)
-  totalOpens.value++
-  openTimes.value.push(new Date())
-  localStorage.setItem('refrigeratorOpens', JSON.stringify({
-    total: totalOpens.value,
-    times: openTimes.value
-  }))
-  updateJudgment()
-}
+      const question = userInput.value
+      userInput.value = ''
 
-// Función para reiniciar contador
-const resetCounter = () => {
-  totalOpens.value = 0
-  openTimes.value = []
-  localStorage.removeItem('refrigeratorOpens')
-  judgmentMessage.value = ''
-}
+      // Generar respuesta mala con Gemini (usando función global)
+      const advice = await window.generateBadAdvice(question)
 
-// Estadísticas
-const todayOpens = computed(() => {
-  const today = new Date().toDateString()
-  return openTimes.value.filter(t => t.toDateString() === today).length
-})
-
-const weeklyAverage = computed(() => {
-  const now = new Date()
-  const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
-  const weekOpens = openTimes.value.filter(t => t >= weekAgo).length
-  return (weekOpens / 7).toFixed(1)
-})
-
-// Estadísticas por hora (hoy) - Siempre muestra 0-23
-const hourlyStats = computed(() => {
-  const today = new Date().toDateString()
-  const stats = {}
-  for (let h = 0; h < 24; h++) {
-    stats[`${h}`] = openTimes.value.filter(t => t.toDateString() === today && t.getHours() === h).length
-  }
-  return stats
-})
-
-// Estadísticas semanales - Siempre muestra días
-const weeklyStats = computed(() => {
-  const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
-  const stats = {}
-  days.forEach((day, i) => {
-    stats[day] = openTimes.value.filter(t => t.getDay() === i).length
-  })
-  return stats
-})
-
-// Mensaje de juicio
-const judgmentMessage = ref('')
-const judgmentMessages = [
-  'Es la cuarta vez en 15 minutos. La comida no se multiplicó mágicamente.',
-  '¿Otra vez? ¿Ya sembraste la comida para que creciera?',
-  'Yo no soy un slot machine. Entre más me abres, menos probabilidades hay de que ganes algo.',
-  'Bienvenido al museo de las sobras. La exposición es la misma de hace 10 minutos.',
-  'Cada vez que abres mi puerta, un cubito de hielo pierde la fe en la humanidad.',
-  'No, el pollo no se cocinó solo. Sigue crudo y decepcionado.',
-  'Este no es un reality show. No hay un drama nuevo entre el yogur y la leche.',
-  '¿Qué esperabas? ¿Que el brócoli te saludara? Hola, ¡soy aún más verde!',
-  '¡Por favor! Estaba en plena criogenización de mis sueños. Ahora se descongeló mi esperanza de ser una lavadora.',
-  '¡Qué hambre constante!',
-  '¿Estás seguro de que necesitas abrirlo?',
-  '¡Wow, eres un experto en refrigeradores!',
-  '¡El refrigerador te extraña!',
-  '¡Otra apertura más!'
-]
-
-const updateJudgment = () => {
-  const randomIndex = Math.floor(Math.random() * judgmentMessages.length)
-  judgmentMessage.value = judgmentMessages[randomIndex]
-}
-
-// Gráficos ApexCharts
-const hourlyChartOptions = computed(() => ({
-  chart: {
-    type: 'bar',
-    height: 300
-  },
-  xaxis: {
-    categories: Array.from({ length: 24 }, (_, i) => `${i}:00`)
-  },
-  yaxis: {
-    title: {
-      text: 'Aperturas'
+      // Agregar respuesta del asistente
+      messages.value.push({
+        name: 'Cháchara',
+        avatar: 'https://img.freepik.com/vector-premium/monstruo-dibujos-animados-expresion-facial-divertida-emocionada-agitando-manos-ilustracion-vectorial-aislada-diseno-blanco-halloween_6996-6410.jpg',
+        text: advice,
+        stamp: new Date().toLocaleTimeString(),
+        sent: false,
+        textColor: 'white',
+        bgColor: 'primary'
+      })
     }
-  },
-  colors: ['#1976d2']
-}))
 
-const hourlyChartSeries = computed(() => [{
-  name: 'Aperturas',
-  data: Object.values(hourlyStats.value)
-}])
-
-const weeklyChartOptions = computed(() => ({
-  chart: {
-    type: 'bar',
-    height: 300
-  },
-  xaxis: {
-    categories: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
-  },
-  yaxis: {
-    title: {
-      text: 'Aperturas'
+    return {
+      userInput,
+      messages,
+      sendMessage,
+      showIntroDialog  // Add this to return
     }
-  },
-  colors: ['#42a5f5']
-}))
-
-const weeklyChartSeries = computed(() => [{
-  name: 'Aperturas',
-  data: Object.values(weeklyStats.value)
-}])
+  }
+}
 </script>
 
+
 <style scoped>
-.fullscreen {
-  height: 100vh;
+
+.padre {
+  padding: 80px;
+  border-radius: 2px;
+  border-color: green;
 }
+
+
+.relative {
+  position: relative;
+}
+.absolute {
+  position: absolute;
+  z-index: 10;
+}
+
+.styled-btn {
+  background: linear-gradient(45deg, #4CAF50, #66BB6A);
+  border-radius: 20px;
+  transition: transform 0.2s;
+}
+.styled-btn:hover {
+  transform: scale(1.05);
+}
+ 
+.custom-font {
+  font-family: 'SuperChiby', sans-serif;
+}
+
 </style>
+
+
+
+https://img.freepik.com/free-vector/vibrant-pattern-design_1409-9648.jpg?semt=ais_hybrid&w=740&q=80
+
+
+https://www.shutterstock.com/image-vector/no-plastic-go-green-zero-600nw-1950569695.jpg

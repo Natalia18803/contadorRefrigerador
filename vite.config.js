@@ -6,9 +6,9 @@ import { quasar, transformAssetUrls } from '@quasar/vite-plugin'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [vue({
-    template: { transformAssetUrls }
+          template: { transformAssetUrls }
   }),
-quasar({
+      quasar({
       sassVariables: fileURLToPath(
         new URL('./src/quasar-variables.sass', import.meta.url)
       )
