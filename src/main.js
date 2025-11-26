@@ -7,7 +7,7 @@ import 'quasar/src/css/index.sass'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
 // Inicializar Gemini globalmente
-const apiKey = "AIzaSyCgoBH8eQGDhudh2Vr-FI7QWRqSCVYiH0U"
+const apiKey = "AIzaSyBeMoraItlvQdWOZuqNtlg2YiLjS5mCv5o"
 const genAI = new GoogleGenerativeAI(apiKey)
 const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
 
